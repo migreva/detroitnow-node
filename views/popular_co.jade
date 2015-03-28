@@ -1,0 +1,15 @@
+extends layout
+
+block content
+  h1= title
+  h3 Most Popular Stories
+
+  ul.articles
+
+  script(src='/socket.io/socket.io.js', type='text/javascript')
+  script(src='/javascripts/dist/popular_co.js', type='text/javascript')
+  script(id='article-template', type='text/x-handlebars-template').
+    <div class='article'>
+      <span>{{ visits }}</span>
+      <span><a href="http://{{ path }}" target='_blank'>{{ title }}</a></span>
+    </div>

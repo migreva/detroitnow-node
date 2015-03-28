@@ -27735,14 +27735,14 @@ module.exports = function(data) {
     draw: draw
   }
 }
-},{"handlebars":"c:\\Users\\Erock\\dev\\detroitnow-node\\node_modules\\handlebars\\lib\\index.js","jquery":"c:\\Users\\Erock\\dev\\detroitnow-node\\node_modules\\jquery-browserify\\lib\\jquery.js"}],"c:\\Users\\Erock\\dev\\detroitnow-node\\public\\javascripts\\src\\popular.js":[function(require,module,exports){
+},{"handlebars":"c:\\Users\\Erock\\dev\\detroitnow-node\\node_modules\\handlebars\\lib\\index.js","jquery":"c:\\Users\\Erock\\dev\\detroitnow-node\\node_modules\\jquery-browserify\\lib\\jquery.js"}],"c:\\Users\\Erock\\dev\\detroitnow-node\\public\\javascripts\\src\\popular_co.js":[function(require,module,exports){
 var _ = require('lodash');
 var $ = require('jquery');
 var article = require('./obj/article');
 
 $(function() {
   var socket = io.connect();
-  socket.emit('popular');
+  socket.emit('popular_co');
   socket.on('chartbeat', function(data) {
   	console.log(data);
     $('.articles').html('');
@@ -27756,4 +27756,4 @@ $(function() {
 });
 
 
-},{"./obj/article":"c:\\Users\\Erock\\dev\\detroitnow-node\\public\\javascripts\\src\\obj\\article.js","jquery":"c:\\Users\\Erock\\dev\\detroitnow-node\\node_modules\\jquery-browserify\\lib\\jquery.js","lodash":"c:\\Users\\Erock\\dev\\detroitnow-node\\node_modules\\lodash\\index.js"}]},{},["c:\\Users\\Erock\\dev\\detroitnow-node\\public\\javascripts\\src\\popular.js"]);
+},{"./obj/article":"c:\\Users\\Erock\\dev\\detroitnow-node\\public\\javascripts\\src\\obj\\article.js","jquery":"c:\\Users\\Erock\\dev\\detroitnow-node\\node_modules\\jquery-browserify\\lib\\jquery.js","lodash":"c:\\Users\\Erock\\dev\\detroitnow-node\\node_modules\\lodash\\index.js"}]},{},["c:\\Users\\Erock\\dev\\detroitnow-node\\public\\javascripts\\src\\popular_co.js"]);

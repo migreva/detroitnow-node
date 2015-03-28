@@ -4,7 +4,7 @@ var article = require('./obj/article');
 
 $(function() {
   var socket = io.connect();
-  socket.emit('popular');
+  socket.emit('popular_co');
   socket.on('chartbeat', function(data) {
   	console.log(data);
     $('.articles').html('');
