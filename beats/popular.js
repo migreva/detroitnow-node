@@ -5,7 +5,10 @@ var _ = require('lodash');
 module.exports = function(app) {
 
   var connections = [];
-  var num_connections = 
+  app.get('/', function(req, res, next) {
+    res.render('popular', { title: 'Popular Articles' });
+  });
+  
   app.io.route('popular', function(req) {
     req.io.join('popular')
   });

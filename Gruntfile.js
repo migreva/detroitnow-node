@@ -4,11 +4,11 @@ module.exports = function(grunt) {
     browserify: {
       watch: {
         files: [{
-          cwd: './public/javascripts/',
+          cwd: './public/javascripts/src',
           expand: true,     // Enable dynamic expansion.
-          src: ['src/*.js'], // Actual pattern(s) to match.
-          dest: 'dist',
-          ext: '.min.js',   // Dest filepaths will have this extension.
+          src: ['*.js'], // Actual pattern(s) to match.
+          dest: './public/javascripts/dist',
+          ext: '.js',   // Dest filepaths will have this extension.
           extDot: 'first'   // Extensions in filenames begin after the first dot
         }],
         options: {

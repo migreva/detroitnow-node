@@ -1,18 +1,17 @@
-var Handlebars = require('handlebars');
 var _ = require('lodash');
 var $ = require('jquery-browserify');
+var article = require('./obj/article');
 
 $(function() {
-  var article_template = Handlebars.compile($('#article-template').html());
   var socket = io.connect();
   socket.emit('popular');
   socket.on('chartbeat', function(data) {
     $('.articles').html('');
 
-    _.forEach(data.articles, function(article) {
-      var html = article_template(article);
-      $('.articles').append(html);
-    })
+    _.forEach(data.articles, function(article_data) {
+      var article_obj = article(article_data);
+      article_obj.draw();
+    });
 
   });  
 });

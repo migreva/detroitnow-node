@@ -24,10 +24,6 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.get('/', function(req, res, next) {
-  res.render('popular', { title: 'Popular Articles' });
-});
-
 app.use('/users', users);
 
 // Init the beats
