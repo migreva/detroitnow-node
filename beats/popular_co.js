@@ -55,7 +55,7 @@ module.exports = function(app) {
 
       return articles;
     }).then(function(articles) {
-      articles = _.sortByOrder(_.flatten(articles), ['visits'], false);
+      articles =_.flatten(articles);
 
       app.io.room('popular_co').broadcast('chartbeat', {
           articles: articles.splice(0, 40)
