@@ -21,6 +21,8 @@ module.exports = {
 node app.js
 ```
 
+Opens at ```http://localhost:3000```
+
 ## Watch js files
 ```bash
 grunt browserify:watch
