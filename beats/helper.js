@@ -12,6 +12,7 @@ var getChartbeatUrls = function(urls, return_function) {
   _.forEach(urls, function(url) {
     console.log("Fetching URL" + url);
     request(url, function(error, response, body) {
+      console.log('returned');
       responses.push(response);
 
       // When we've gotten all the responses, call the return function

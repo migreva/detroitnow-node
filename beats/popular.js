@@ -5,11 +5,16 @@ var _ = require('lodash');
 module.exports = function(app) {
 
   var connections = [];
+  var num_connections = 
   app.io.route('popular', function(req) {
     req.io.join('popular')
   });
 
   function fetchData() {
+    if (!app.io.sockets.clients('popular').length){
+      setTimeout(fetchData, 5000);
+      return;
+    }
     // Format the URLs
     console.log("Fetching popular");
     var chartbeat_template = _.template("<%= chartbeat_url %>/live/toppages/v3/?limit=50&apikey=<%= api_key %>&host=")
