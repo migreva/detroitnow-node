@@ -11,7 +11,7 @@ bower install
 * Create a config.js file with the following contents
 ```javascript
 module.exports = {
-  chartbeat_url: 'http://api.chartbeat.com',
+  chartbeatUrl: 'http://api.chartbeat.com',
   api_key: '...', // Chartbeat API key
   sites: [...] // list of sites to look at chartbeat info for
 }

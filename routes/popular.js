@@ -9,78 +9,43 @@ var router = express.Router();
 var config = require('../config');
 var parse = require('../helpers/parse');
 var constants = require('../helpers/constants');
-
-var chartbeat_template = _.template("<%= chartbeat_url %>/live/toppages/v3/?limit=50&apikey=<%= api_key %>&host=");
-var chartbeat_string = chartbeat_template({
-  chartbeat_url: config.chartbeat_url,
-  api_key: config.api_key
-});
-
-var urls = [];
-_.forEach(config.sites, function(site) {
-  urls.push(chartbeat_string + site);
-});
+var Beat = require('../helpers/obj/beat');
 
 router.get('/', function(req, res, next) {
   res.render('popular', { title: 'Popular Articles' });
 });
 
-// Required to handle an array of promises
-// https://github.com/petkaantonov/bluebird/blob/master/API.md#promisecoroutineaddyieldhandlerfunction-handler---void
-Promise.coroutine.addYieldHandler(function(yieldedValue) {
-  if (Array.isArray(yieldedValue)) return Promise.all(yieldedValue);
-});
 
 module.exports = {
   router: router,
   beat: function(app) {
-    app.io.route('popular', function(req) {
-      req.io.join('popular');
-    });
+    var beat = Beat({
+      app: app,
+      page: 'popular',
+      socket: 'popular',
+      apiName: 'toppages',
+      articleResponse: function(responses) {
+        var articles = [];
 
-    var fetchData = Promise.coroutine(function* () {
-      if (!app.io.sockets.clients('popular').length) {
-        console.log(moment() + ": no clients connected to the popular dashboard, ignoring request");
-        setTimeout(fetchData, constants.loop_interval);
-        return;
-      }
+        // parse chartbeat response data
+        _.forEach(responses, function(response) {
+          _.forEach(response[1].pages, function(article) {
+            if (parse.isSectionPage(article.path)) return;
 
-      var promises = [];
-      var articles = [];
-
-      console.log(moment() + ": fetching popular data");
-      _.forEach(urls, function(url) {
-        promises.push(needle.getAsync(url));
-      });
-
-      // send requests to chartbeat in parallel
-      try {
-        var responses = yield promises;
-      } catch (e) {
-        console.log(moment() + ": " + e);
-      }
-
-      // parse chartbeat response data
-      _.forEach(responses, function(response) {
-        _.forEach(response[1].pages, function(article) {
-          if (parse.isSectionPage(article.path)) return;
-
-          articles.push({
-            path: article.path,
-            title: article.title,
-            visits: article.stats.visits
+            articles.push({
+              path: article.path,
+              title: article.title,
+              visits: article.stats.visits
+            });
           });
         });
-      });
 
-      // send parsed chartbeat data to client
-      app.io.room('popular').broadcast('chartbeat', {
-        articles: articles.splice(0, 40)
-      });
-
-      setTimeout(fetchData, constants.loop_interval);
+        articles = _.sortByOrder(articles, ['visits'], [false]);
+        // send parsed chartbeat data to client
+        app.io.room('popular').broadcast('chartbeat', {
+          articles: articles.splice(0, 40)
+        });
+      }
     });
-
-    fetchData(app);
   }
 };
