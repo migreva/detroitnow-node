@@ -8,6 +8,7 @@ var router = express.Router();
 
 var config = require('../config');
 var parse = require('../helpers/parse');
+var constants = require('../helpers/constants');
 
 var chartbeat_template = _.template("<%= chartbeat_url %>/live/toppages/v3/?limit=50&apikey=<%= api_key %>&host=");
 var chartbeat_string = chartbeat_template({
@@ -40,9 +41,7 @@ module.exports = {
     var fetchData = Promise.coroutine(function* () {
       if (!app.io.sockets.clients('popular').length) {
         console.log(moment() + ": no clients connected to the popular dashboard, ignoring request");
-        setTimeout(function(app) {
-          fetchData(app);
-        }, config.loop_interval);
+        setTimeout(fetchData, constants.loop_interval);
         return;
       }
 
@@ -79,9 +78,7 @@ module.exports = {
         articles: articles.splice(0, 40)
       });
 
-      setTimeout(function(app) {
-        fetchData(app);
-      }, config.loop_interval);
+      setTimeout(fetchData, constants.loop_interval);
     });
 
     fetchData(app);
