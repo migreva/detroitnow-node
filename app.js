@@ -8,7 +8,6 @@ var bodyParser = require('body-parser');
 var routes = require('./routes/index');
 var users = require('./routes/users');
 var popular = require('./beats/popular');
-var popular_co = require('./beats/popular_co');
 
 var app = express();
 app.http().io();
@@ -29,7 +28,6 @@ app.use('/users', users);
 
 // Init the beats
 popular(app);
-popular_co(app);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

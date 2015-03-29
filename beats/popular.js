@@ -1,20 +1,21 @@
-var helper = require('./helper')
+var helper = require('./helper');
 var config = require('../config');
 var _ = require('lodash');
+var Promise = require('bluebird');
+var needle = Promise.promisifyAll(require('needle'));
 
 module.exports = function(app) {
-
   var connections = [];
   app.get('/', function(req, res, next) {
     res.render('popular', { title: 'Popular Articles' });
   });
-  
+
   app.io.route('popular', function(req) {
     req.io.join('popular')
   });
 
   function fetchData() {
-    if (!app.io.sockets.clients('popular').length){
+    if (!app.io.sockets.clients('popular').length) {
       setTimeout(fetchData, 5000);
       return;
     }
@@ -31,37 +32,38 @@ module.exports = function(app) {
       urls.push(chartbeat_string + site);
     });
 
-    // Fetch the URLs
-    helper.getChartbeatUrls(urls, function(responses) {
-
-      // Iterate over the articles in the responses
+    var articles = [];
+    var current = Promise.resolve();
+    Promise.map(urls, function(URL) {
+      current = current.then(function() {
+        return needle.getAsync(URL);
+      });
+      return current;
+    }).map(function(res) {
       var articles = [];
-      _.forEach(responses, function(response) {
-
-        // Iterate over each page
-        var body = JSON.parse(response.body);
-        _.forEach(body.pages, function(page) {
-
-          // Don't include if it's a section page
-          if (helper.isSectionPage(page.path)) {
-            return;
-          }
-
-          var article = {
-            path: page.path,
-            title: page.title,
-            visits: page.stats.visits
-          } 
-
-          articles.push(article);
+      //console.log(res[1]);
+      _.forEach(res[1].pages, function(article) {
+        if (helper.isSectionPage(article.path)) {
+          return;
+        }
+        articles.push({
+          path: article.path,
+          title: article.title,
+          visits: article.stats.visits
         });
       });
 
-      articles = _.sortByOrder(articles, ['visits'], false);
+      return articles;
+    }).then(function(articles) {
+      articles = _.sortByOrder(_.flatten(articles), ['visits'], false);
 
       app.io.room('popular').broadcast('chartbeat', {
           articles: articles.splice(0, 40)
-      })
+      });
+    }).then(function() {
+      console.log('All needle requests saved!')
+    }).catch(function(e) {
+      console.log(e);
     });
 
     setTimeout(fetchData, 5000);
