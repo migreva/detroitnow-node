@@ -14,7 +14,7 @@ Promise.coroutine.addYieldHandler(function(yieldedValue) {
 });
 
 module.exports = function(__options) {
-  /** Options: 
+  /** Options:
     {
       // REQUIRED
       app: (obj) Express app
@@ -29,8 +29,8 @@ module.exports = function(__options) {
       siteFilter: (function) filter down the sites that will be used for API requests
                               DEFAULT - will pass back all sites in config.sites
                           :return: array of sites to be used in host GET param in Chartbeat API req
-      chartbeatResponse: (function) function used to parse chartbeat response. 
-                                  DEFAULT - will pass all responses to client in array 
+      chartbeatResponse: (function) function used to parse chartbeat response.
+                                  DEFAULT - will pass all responses to client in array
 
                         :param responses: (Array) All responses from the chartbeat API calls
     }
@@ -40,7 +40,7 @@ module.exports = function(__options) {
   var app;
   var options = __options;
   var requiredErrorTemplate = _.template('Required option "<%= name %> missing. <%= reason %>"');
-  var chartbeatTemplate = _.template('<%= chartbeatUrl %><%= chartbeatApiString %>&apikey=<%= apiKey %>&host=');
+  var chartbeatTemplate = _.template('<%= chartbeatApi %><%= chartbeatApiString %>&apikey=<%= apiKey %>&host=');
   var chartbeatApis = {
     'toppages': '/live/toppages/v3/?limit=50',
     'recent': '/live/recent/v3/?limit=50'
@@ -61,7 +61,7 @@ module.exports = function(__options) {
   var urlFormat = function(sites) {
     var return_urls = []
     var chartbeatString = chartbeatTemplate({
-      chartbeatUrl: config.chartbeatUrl,
+      chartbeatApi: constants.chartbeatApi,
       chartbeatApiString: chartbeatApis[options.apiName],
       apiKey: config.apiKey
     });
@@ -77,7 +77,7 @@ module.exports = function(__options) {
   // TODO make this parsing for types, etc of every option
   var requiredOptions = [{
     name: 'page',
-    reason: 'Need jade template to render HTML page' 
+    reason: 'Need jade template to render HTML page'
   }, {
     name: 'socket',
     reason: 'Need a socket to connect to from the client side, and room to broadcast to'
@@ -121,7 +121,7 @@ module.exports = function(__options) {
     }
   });
 
-  // Register the route 
+  // Register the route
   app.io.route(options.socket, function(req) {
     console.log('Connection ' + options.socket);
     req.io.join(options.socket);
@@ -146,7 +146,6 @@ module.exports = function(__options) {
 
     // Fetch URLs
     _.forEach(urls, function(url) {
-      console.log(url);
       promises.push(needle.getAsync(url));
     });
 
