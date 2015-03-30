@@ -26,7 +26,7 @@ module.exports = function(__options) {
                         Will use chartbeat API + config.apiKey and config.sites to form the API
 
       // OPTIONAL
-      articleResponse: (function) function used to parse chartbeat response. 
+      chartbeatResponse: (function) function used to parse chartbeat response. 
                                   DEFAULT - will pass all responses to client in array 
 
                         :param responses: All responses from the chartbeat API calls
@@ -42,11 +42,16 @@ module.exports = function(__options) {
     'toppages': '/live/toppages/v3/?limit=50'
   }
   var urls = [];
-  var articleResponse = function(responses) {
-      app.io.room('popular').broadcast('chartbeat', {
-        responses: responses
-      });
+  var chartbeatResponse = function(responses) {
+    if (!options.hasOwnProperty('room')) {
+      throw new Error('Room doesn\'t exist');
+      return
+    }
+    app.io.room(options.room).broadcast('chartbeat', {
+      responses: responses
+    });
   }
+
 
 
   // Parse options
@@ -88,8 +93,8 @@ module.exports = function(__options) {
       }
     }
 
-    if (name === 'articleResponse') {
-      articleResponse = value;
+    if (name === 'chartbeatResponse') {
+      chartbeatResponse = value;
     }
   });
 
@@ -105,9 +110,11 @@ module.exports = function(__options) {
 
   // Register the route 
   app.io.route(options.socket, function(req) {
+    console.log('Connection ' + options.socket);
     req.io.join(options.socket);
   });
 
+  // Coroutine
   var start = Promise.coroutine(function* () {
     var promises = [];
 
@@ -121,20 +128,19 @@ module.exports = function(__options) {
 
     // Fetch URLs
     _.forEach(urls, function(url) {
+      console.log(url);
       promises.push(needle.getAsync(url));
     });
 
     // Yield the responses
     try {
-      var responses = []; 
       responses = yield promises;
+      console.log('responses returned');
+
+      chartbeatResponse(responses);
     } catch (e) {
-      console.log(moment() + ": " + e);
+      console.log(moment() + " : " + e);
     }
-
-    console.log('respones length (beat) ' + responses.length);
-
-    articleResponse(responses);
 
     setTimeout(start, constants.loop_interval);
   });

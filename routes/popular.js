@@ -15,7 +15,6 @@ router.get('/', function(req, res, next) {
   res.render('popular', { title: 'Popular Articles' });
 });
 
-
 module.exports = {
   router: router,
   beat: function(app) {
@@ -24,7 +23,7 @@ module.exports = {
       page: 'popular',
       socket: 'popular',
       apiName: 'toppages',
-      articleResponse: function(responses) {
+      chartbeatResponse: function(responses) {
         var articles = [];
 
         // parse chartbeat response data

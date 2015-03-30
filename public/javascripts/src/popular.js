@@ -1,6 +1,8 @@
 var _ = require('lodash');
 var $ = require('jquery');
+var io = require('socket.io-browserify');
 var article = require('./obj/article');
+
 
 $(function() {
   var socket = io.connect();
