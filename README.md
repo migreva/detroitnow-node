@@ -34,3 +34,7 @@ Opens at ```http://localhost:3000```
 ```bash
 grunt browserify:watch
 ```
+
+## Credits
+* Eric Bower [https://github.com/neurosnap](https://github.com/neurosnap)
+* Mike Varano [https://github.com/migreva](https://github.com/migreva)
