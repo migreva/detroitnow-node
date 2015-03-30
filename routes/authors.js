@@ -1,8 +1,6 @@
 var _ = require('lodash');
 var util = require('util');
 var moment = require('moment');
-var Promise = require('bluebird');
-var needle = Promise.promisifyAll(require('needle'));
 
 var express = require('express');
 var router = express.Router();
@@ -29,7 +27,7 @@ module.exports = {
 
         // parse chartbeat response data
         _.forEach(responses, function(response) {
-          _.forEach(response[1].pages, function(item) {
+          _.forEach(response.pages, function(item) {
             // Parse item
             var keys = ['path', 'title', 'authors', 'stats'];
             keyError = false;

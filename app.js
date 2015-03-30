@@ -5,9 +5,9 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
-var users = require('./routes/users');
 var popular = require('./routes/popular');
 var authors = require('./routes/authors');
+var geo = require('./routes/geo');
 
 var app = express();
 app.http().io();
@@ -24,11 +24,19 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/users', users);
+// http://stackoverflow.com/a/27464258/1337683
+app.use('/stylesheets', express.static(path.join(__dirname, '/node_modules/leaflet/dist'))); 
+app.use('/images', express.static(path.join(__dirname, '/node_modules/leaflet/dist/images')))
+
+// Set up URLs
 app.use('/', popular.router);
 app.use('/authors', authors.router);
+app.use('/geo', geo.router);
+
+// Init beat
 popular.beat(app);
 authors.beat(app);
+geo.beat(app);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

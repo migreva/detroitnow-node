@@ -1,0 +1,31 @@
+extends layout
+
+block css
+  link(href='/stylesheets/leaflet.css', rel='stylesheet')
+  link(href='/bower/fontawesome/css/font-awesome.min.css', rel='stylesheet')
+  link(href='/stylesheets/css/geo.css', rel='stylesheet')
+
+block content
+  .page-header
+    h1
+      | Around The World, One User At A Time
+  .col-md-12
+    #map(style='width:100vw; height:100vh;')
+
+  script(src='/javascripts/dist/geo.js', type='text/javascript')
+  script(id='marker-popup-template', type='text/x-handlebars-tempalte').
+    <div class="marker-popup row">
+      <div class="col-md-4">
+        <div class="row">
+          <div class="host-image">
+            <img src="/images/hostimages/{{ host }}.png">
+          </div>
+        </div>
+        <div class="row platform">
+          <span>{{#getPlatformImage}}{{platform}}{{/getPlatformImage}}</span>
+        </div>
+      </div>
+      <div class="col-md-8">
+        <a class="title" target="_blank" href="http://{{ path }}">{{ title }}</a>
+      </div>
+    </div>

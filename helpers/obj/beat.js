@@ -26,10 +26,13 @@ module.exports = function(__options) {
                         Will use chartbeat API + config.apiKey and config.sites to form the API
 
       // OPTIONAL
+      siteFilter: (function) filter down the sites that will be used for API requests
+                              DEFAULT - will pass back all sites in config.sites
+                          :return: array of sites to be used in host GET param in Chartbeat API req
       chartbeatResponse: (function) function used to parse chartbeat response. 
                                   DEFAULT - will pass all responses to client in array 
 
-                        :param responses: All responses from the chartbeat API calls
+                        :param responses: (Array) All responses from the chartbeat API calls
     }
   */
 
@@ -39,7 +42,8 @@ module.exports = function(__options) {
   var requiredErrorTemplate = _.template('Required option "<%= name %> missing. <%= reason %>"');
   var chartbeatTemplate = _.template('<%= chartbeatUrl %><%= chartbeatApiString %>&apikey=<%= apiKey %>&host=');
   var chartbeatApis = {
-    'toppages': '/live/toppages/v3/?limit=50'
+    'toppages': '/live/toppages/v3/?limit=50',
+    'recent': '/live/recent/v3/?limit=50'
   }
   var urls = [];
   var chartbeatResponse = function(responses) {
@@ -51,8 +55,23 @@ module.exports = function(__options) {
       responses: responses
     });
   }
+  var siteFilter = function() {
+    return config.sites;
+  }
+  var urlFormat = function(sites) {
+    var return_urls = []
+    var chartbeatString = chartbeatTemplate({
+      chartbeatUrl: config.chartbeatUrl,
+      chartbeatApiString: chartbeatApis[options.apiName],
+      apiKey: config.apiKey
+    });
 
+    _.forEach(sites, function(site) {
+      return_urls.push(chartbeatString + site);
+    });
 
+    return return_urls;
+  }
 
   // Parse options
   // TODO make this parsing for types, etc of every option
@@ -96,16 +115,10 @@ module.exports = function(__options) {
     if (name === 'chartbeatResponse') {
       chartbeatResponse = value;
     }
-  });
 
-  // Format chartbeat APIs
-  var chartbeatString = chartbeatTemplate({
-    chartbeatUrl: config.chartbeatUrl,
-    chartbeatApiString: chartbeatApis[options.apiName],
-    apiKey: config.apiKey
-  });
-  _.forEach(config.sites, function(site) {
-    urls.push(chartbeatString + site);
+    if (name === 'siteFilter') {
+      siteFilter = value;
+    }
   });
 
   // Register the route 
@@ -116,6 +129,11 @@ module.exports = function(__options) {
 
   // Coroutine
   var start = Promise.coroutine(function* () {
+    // Format chartbeat APIs
+    // Have to do this everytime for geo page that gets a random site everytime
+    // TODO re-address this to see if we can do it without doing this every time
+    urls = urlFormat(siteFilter());
+
     var promises = [];
 
     // Don't do anything if no one's in this room
@@ -137,9 +155,21 @@ module.exports = function(__options) {
       responses = yield promises;
       console.log('responses returned');
 
-      chartbeatResponse(responses);
+      // responses[n][0] -> what appears to be header information
+      // responses[n][1] -> actual response
+      // iterate over responses and just include actual response
+      var parsedResponses = [];
+      _.forEach(responses, function(response) {
+        if (response.length < 1) {
+          console.log('Response of length ' + response.length);
+          return
+        }
+        parsedResponses.push(response[1]);
+      })
+      chartbeatResponse(parsedResponses);
     } catch (e) {
-      console.log(moment() + " : " + e);
+      console.log(moment() + " [Beat error] : " + e);
+      console.log(e.stack);
     }
 
     setTimeout(start, constants.loop_interval);
