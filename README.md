@@ -1,9 +1,15 @@
 # DetroitNow - Node
 
+## Dependencies
+* [Nodejs](http://nodejs.org)
+* [Grunt](http://gruntjs.com)
+* [Bower](http://bower.io)
+* [Nodemon](http://nodemon.io/)
+
 ## Install
 ```bash
 npm install
-npm install -g grunt-cli
+npm install -g grunt-cli nodemon bower
 bower install
 ```
 
@@ -19,7 +25,7 @@ module.exports = {
 
 ## Run
 ```bash
-node app.js
+nodemon app.js
 ```
 
 Opens at ```http://localhost:3000```
